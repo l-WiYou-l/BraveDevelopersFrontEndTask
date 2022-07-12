@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { operators } from './data/operators'
-import {TResponseOperatorsData} from "../../types/TResponseOperatorsData";
- 
+import {TResponseOperatorsData} from "../../types/api";
 
 const handler = (req: NextApiRequest, res: NextApiResponse<TResponseOperatorsData[]>) => {
   res.status(200).json(operators)

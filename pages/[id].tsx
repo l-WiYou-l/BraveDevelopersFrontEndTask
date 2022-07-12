@@ -1,73 +1,62 @@
-import styled from "styled-components";
-import PhoneInput from "react-phone-input-2";
-import Image from 'next/image'
 import React, { useState } from "react";
 import { useSpring, animated } from 'react-spring'
-import { TOperator } from '../types/TOperator';
-import {TGetServerSidePropsArgs} from "../types/TGetServerSidePropsArgs";
-import defaultImg from "../public/err.jpg"
-import { TMyLoaderArgs } from "../types/TMyLoaderArgs";
-
-type TModalContentProps = {
-  height: number;
-  width: number;
-}
+import { TGetServerSidePropsArgs } from "../types/api";
+import { TOperator } from "../types";
+import Snack from "../components/Snack";
+import OperatorForm from "../components/OperatorForm";
+import OperatorImage from "../components/OperatorImage";
+import { SCButton } from "../components/SCButton";
+import { SCModalContent } from "../components/SCModalContent";
+import { AlertColor } from "@mui/material";
 
 type TOperatorProps = {
   operator: TOperator
 }
-
 type TRouterState = {
   phoneValue: string;
   inputValue: number;
+  phoneInputDirty: boolean;
+  snackOpen: boolean;
+  snackSeverity: AlertColor;
+  snackAlertText: string;
 }
-
-const ModalContent = styled.div<TModalContentProps>`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: rgb(67, 65, 65);
-  border: 2px solid rgb(0, 0, 0);
-  box-shadow: rgb(0 0 0 / 20%) 0px 11px 15px -7px,
-    rgb(0 0 0 / 14%) 0px 24px 38px 3px, rgb(0 0 0 / 12%) 0px 9px 46px 8px;
-  padding: 32px;
-  display: flex;
-  height: ${(props) => props.height}px;
-  width: ${(props) => props.width}px;
-  flex-direction: column;
-  align-items: center;
-  z-index: 1;
-  border-radius: 20px;
-  max-width: 100%;
-`;
-
-const Button = styled.button`
-  background-color: black;
-  border: none;
-  color: white;
-  padding: 15px 32px;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  border-radius: 5px;
-  cursor: pointer;
-  height: 50px;
-  width: 200px;
-  margin-top: 15px;
-  &:active {
-    transition: all 0.9s ease 0s;
-    background-color: #191919;
-  }
-`;
 
 const Operator = ({ operator }: TOperatorProps) => {
   const [state, setState] = useState<TRouterState>({
     phoneValue: "",
     inputValue: 1,
+    phoneInputDirty: false,
+    snackOpen: false,
+    snackSeverity: 'error',
+    snackAlertText: '',
   });
 
-  const handleSumInputChange = (event:  React.ChangeEvent<HTMLInputElement>) => {
+  const handleSubmit = () => {
+    if (state.phoneValue.length === 11) {
+      return new Promise((resolve, reject) => {
+        setState({...state, snackOpen: true, snackSeverity: 'success', snackAlertText: 'Платеж выполнен успешно'});
+        setTimeout(() => {
+          if (Math.random() < 0.5) {
+            resolve([
+              window.history.pushState({}, "", `/`),
+              window.location.reload(),
+            ]);
+          } else {
+            reject();
+            setState({...state, snackOpen: true, snackSeverity: 'error', snackAlertText: 'произошла ошибка во время оплаты пожалуйста попробуйте еще раз'})
+          }
+        }, );
+      });
+    }
+  };
+
+  const blurHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.name == 'phone') {
+      setState({ ...state, phoneInputDirty: true })
+    }
+  }
+
+  const handleSumInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value
     const numberReg = /(?![0]).*^[0-9]*[.,]?[0-9]+$/g;
     const inputValueNumber = Number(value);
@@ -77,64 +66,32 @@ const Operator = ({ operator }: TOperatorProps) => {
     }
   };
 
-  const handleSubmit = () => {
-    if (state.phoneValue.length === 11) {
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          if (Math.random() < 0.5) {
-            resolve([
-              alert("Операция выполнена успешно"),
-              window.history.pushState({}, "", `/`),
-              window.location.reload(),
-            ]);
-          } else {
-            reject(alert("Операция не выполнена"));
-          }
-        }, 1000);
-      });
-    }
-  };
-
-  const props = useSpring({ to: { opacity: 1 }, from: { opacity: 0 } , config: {duration: 2000} })
-
-  const myLoader = ({ src }: TMyLoaderArgs) => src
+  const props = useSpring({ to: { opacity: 1 }, from: { opacity: 0 }, config: { duration: 2000 } })
 
   return (
-    <>
       <animated.div style={props}>
         <div className="operator__container">
-          <ModalContent height={350} width={500}>
-            <Image
-              loader={myLoader}
-              src={operator ? operator.imageSrc : defaultImg }
-              height='120'
-              width='400'
-              alt={operator ? operator.name : 'error'}
-              className='operator_image'
+          <SCModalContent height={400} width={500}>
+            <OperatorImage operator={ operator }/>
+            <OperatorForm
+              phoneValue={state.phoneValue}
+              inputValue={state.inputValue}
+              phoneInputDirty={state.phoneInputDirty}
+              onChange={(phone:string) => {setState({...state, phoneValue: phone})}}
+              onSumInputChange={handleSumInputChange}
+              onBlurHandler={blurHandler}
             />
-            <div>
-              <div>
-                <PhoneInput
-                  country={"ru"}
-                  value={state.phoneValue}
-                  onChange={(phone) => {
-                    setState({ ...state, phoneValue: phone });
-                  }}
-                />
-              </div>
-              <label className='special-label'>Сумма</label>
-              <input
-                onChange={handleSumInputChange}
-                value={state.inputValue}
-              />
-            </div>
-            <div>
-              <Button onClick={handleSubmit}>Оплатить</Button>
-            </div>
-          </ModalContent>
+            <SCButton onClick={handleSubmit}>Оплатить</SCButton>
+          </SCModalContent>
         </div>
+        <Snack
+          isOpen={state.snackOpen}
+          onClose={() => {setState({...state, snackOpen: false})}}
+          severity={state.snackSeverity}
+        >
+          {state.snackAlertText}
+        </Snack>
       </animated.div>
-    </>
   );
 }
 

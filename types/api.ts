@@ -3,3 +3,9 @@ export type TResponseOperatorsData = {
   name: string;
   imageSrc: string;
 }
+
+export type TGetServerSidePropsArgs = {
+  params: {
+    id: number;
+  };
+}
