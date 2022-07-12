@@ -1,4 +1,4 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Ccылка на приложение - https://brave-developers-front-end-task.vercel.app
 
 ## Getting Started
 
