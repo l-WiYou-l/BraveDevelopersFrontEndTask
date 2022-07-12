@@ -23,6 +23,8 @@ const Home: NextPage<THomeProps> = ({operators}) => {
 export default Home
 
 export const getStaticProps = async () => {
+  console.log('getStaticProps')
+
   try {
     const response = await fetch(`${process.env.API_HOST}/operators/`);
     const operators = await response.json();
