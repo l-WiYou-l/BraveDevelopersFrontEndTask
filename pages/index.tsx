@@ -2,7 +2,6 @@ import React from "react";
 import type { NextPage } from 'next';
 import { useSpring, animated } from 'react-spring'
 import { TOperator } from "../types";
-
 import Operators from "../components/Operators";
 
 type THomeProps = {
@@ -10,21 +9,22 @@ type THomeProps = {
 }
 
 const Home: NextPage<THomeProps> = ({operators}) => {
-
-  const props = useSpring({ to: { opacity: 1 }, from: { opacity: 0 } , config: {duration: 2000} })
+  const props = useSpring({
+    to: { opacity: 1 },
+    from: { opacity: 0 } ,
+    config: {duration: 2000}
+  });
 
   return (
     <animated.div style={props}>
-     <Operators operators={operators}/>
+      <Operators operators={operators}/>
     </animated.div>
   )
-}
+};
 
 export default Home
 
 export const getStaticProps = async () => {
-  console.log('getStaticProps')
-
   try {
     const response = await fetch(`${process.env.API_HOST}/operators/`);
     const operators = await response.json();
@@ -33,7 +33,6 @@ export const getStaticProps = async () => {
         notFound: true,
       }
     }
-
     return {
       props: { operators },
     }

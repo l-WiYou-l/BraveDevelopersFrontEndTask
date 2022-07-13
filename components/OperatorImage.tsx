@@ -5,23 +5,20 @@ import { TMyLoaderArgs, TOperator } from "../types";
 
 type TOperatorImageProps = {
   operator: TOperator
-}
+};
 
 const OperatorImage = ({  operator  }: TOperatorImageProps) => {
-
   const myLoader = ({ src }: TMyLoaderArgs) => src
 
   return (
-    <div>
-      <Image
-        loader={myLoader}
-        src={operator ? operator.imageSrc : defaultImg }
-        height='120'
-        width='400'
-        alt={operator ? operator.name : 'error'}
-        className='operator_image'
-      />
-    </div>
+    <Image
+      loader={myLoader}
+      src={operator ? operator.imageSrc : defaultImg }
+      height='120'
+      width='400'
+      alt={operator ? operator.name : 'error'}
+      className='operator_image'
+    />
   );
 };
 
